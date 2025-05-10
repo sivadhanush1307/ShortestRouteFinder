@@ -1,0 +1,45 @@
+import math
+import pandas as pd def entropy(data):
+labels = data.iloc[:, -1]
+label_counts = labels.value_counts() probabilities = label_counts / len(labels)
+return -sum(probabilities * probabilities.apply(lambda x: math.log2(x) if x > 0 else 0))
+
+
+def information_gain(data, split_attribute): total_entropy = entropy(data)
+values = data[split_attribute].unique() weighted_entropy = 0
+for value in values:
+subset = data[data[split_attribute] == value] subset_entropy = entropy(subset)
+weighted_entropy += (len(subset) / len(data)) * subset_entropy return total_entropy - weighted_entropy
+
+def best_attribute_to_split(data): attributes = data.columns[:-1]
+gains = {attribute: information_gain(data, attribute) for attribute in attributes} return max(gains, key=gains.get)
+
+def id3(data, tree=None):
+ 
+
+best_attr = best_attribute_to_split(data) if tree is None:
+tree = {} tree[best_attr] = {}
+values = data[best_attr].unique() for value in values:
+subset = data[data[best_attr] == value] if entropy(subset) == 0:
+tree[best_attr][value] = subset.iloc[0, -1] else:
+tree[best_attr][value] = id3(subset.drop(columns=[best_attr])) return tree
+def print_tree(tree, indent=""): if not isinstance(tree, dict):
+print(indent + "Label:", tree) return
+
+for attribute, sub_tree in tree.items(): print(indent + attribute)
+for value, branch in sub_tree.items(): print(indent + f" {value}:") print_tree(branch, indent + " ")
+ 
+
+# Sample dataset
+data = {
+'Outlook': ['Sunny', 'Sunny', 'Overcast', 'Rain', 'Rain', 'Rain', 'Overcast', 'Sunny', 'Sunny', 'Rain',
+'Sunny', 'Overcast', 'Overcast', 'Rain'],
+'Temperature': ['Hot', 'Hot', 'Hot', 'Mild', 'Cool', 'Cool', 'Cool', 'Mild', 'Cool', 'Mild', 'Mild', 'Mild', 'Hot', 'Mild'],
+'Humidity': ['High', 'High', 'High', 'High', 'Normal', 'Normal', 'Normal', 'High', 'Normal', 'Normal', 'Normal', 'High', 'Normal', 'High'],
+'Windy': [False, True, False, False, False, True, True, False, False, False, True, True, False, True],
+'PlayTennis': ['No', 'No', 'Yes', 'Yes', 'Yes', 'No', 'Yes', 'No', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'No']
+}
+
+
+# Convert to DataFrame df = pd.DataFrame(data) # Build the decision tree decision_tree = id3(df) print("Decision Tree:") print_tree(decision_tree)
+print("GOPALA KRISHNA :2203031050330")
